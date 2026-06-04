@@ -33,12 +33,32 @@ machine (or container) that has the Android SDK and network access.
 - JVM unit tests for the cost maths (`CostCalculatorTest`).
 - Gradle wrapper (8.11.1) committed.
 
-**Not done / unverified:**
+**Verified:**
 
-- ❗ **Never compiled.** No `assembleDebug`, no `test` run, no lint — the build
-  environment had no SDK/network.
+- ✅ **Cost-engine unit tests pass (7/7).** The Android build can't run in the dev
+  container (Google's Maven is blocked — see below), so the pure-Kotlin logic
+  (`CostCalculator` + `Attendee.hourlyRate`) was compiled and tested in a
+  standalone JVM Gradle project against Maven Central. All assertions pass,
+  including currency formatting.
+- ✅ **GitHub Actions CI** (`.github/workflows/android.yml`) runs the real
+  `testDebugUnitTest` + `lintDebug` + `assembleDebug` on every push/PR using a
+  runner that has the SDK and full network — this is the authoritative build.
+
+**Not done / unverified locally:**
+
+- ❗ **The Android layer (UI/data/Room/Compose) has not been compiled here** — the
+  dev container blocks `dl.google.com` / `maven.google.com`, where AGP, AndroidX,
+  Compose and Room live (Maven Central *is* reachable). It is hand-audited
+  (imports, icon refs, OptIns, `collect` import all checked) and is built by CI.
 - ❗ No instrumented (device) tests, no screenshots, no signed release.
 - ❗ Launcher icon is a simple vector clock placeholder.
+
+### Network policy note (important)
+The dev container's policy allows **Maven Central, Gradle services, the Gradle
+Plugin Portal**, but blocks **Google's Maven** (`dl.google.com`,
+`maven.google.com`). To build locally/in a container you need a policy that also
+allows Google's Maven, or just rely on GitHub Actions (whose runners are
+unrestricted).
 
 ---
 
@@ -81,8 +101,8 @@ SessionStart hook in §4 which provisions the SDK.
    wipe on upgrade is intentional.
 
 ### Definition of done
-- [ ] `./gradlew testDebugUnitTest` green.
-- [ ] `./gradlew assembleDebug` produces an APK.
+- [x] Cost-engine unit tests pass (verified standalone; also run in CI).
+- [ ] `./gradlew assembleDebug` produces an APK (run by CI — confirm green).
 - [ ] `./gradlew lintDebug` clean (or triaged).
 - [ ] App runs: add attendees → start → cost ticks → buzz at threshold → end →
       email composer opens with all attendees pre-filled.

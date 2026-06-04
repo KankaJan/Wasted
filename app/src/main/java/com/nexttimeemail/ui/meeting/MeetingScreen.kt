@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nexttimeemail.R
 import com.nexttimeemail.domain.CostCalculator
+import kotlinx.coroutines.flow.collect
 import com.nexttimeemail.ui.AppViewModelProvider
 import com.nexttimeemail.ui.theme.MoneyCounterStyle
 import com.nexttimeemail.ui.theme.TimerStyle
