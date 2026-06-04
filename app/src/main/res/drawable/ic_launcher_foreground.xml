@@ -3,16 +3,59 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- A simple clock face = "meeting time costs money" -->
-    <group android:scaleX="1.6"
-        android:scaleY="1.6"
-        android:translateX="-32.4"
-        android:translateY="-32.4">
+    <!-- Money + time + "again/next time": a clock, a bold $, and a refresh loop.
+         Kept to the adaptive-icon safe zone via the group scale. White on ink. -->
+    <group
+        android:name="mark"
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.86"
+        android:scaleY="0.86">
+
+        <!-- Clock face ring -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.2"
+            android:fillColor="#00000000"
+            android:pathData="M60,36 A22,22 0 1 1 60,80 A22,22 0 1 1 60,36 Z" />
+
+        <!-- Clock hands -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.2"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000"
+            android:pathData="M60,58 L60,42" />
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.2"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000"
+            android:pathData="M60,58 L73,65" />
+
+        <!-- Dollar sign: vertical bar + S body -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.6"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000"
+            android:pathData="M32,18 L32,52" />
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.6"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000"
+            android:pathData="M41,25 C41,19 25,19 25,27 C25,34 41,34 41,42 C41,50 25,50 25,43" />
+
+        <!-- Recurring / "next time" loop arrow: curved tail + arrowhead pointing up -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.6"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000"
+            android:pathData="M40,84 A24,24 0 0 1 22,54" />
         <path
             android:fillColor="#FFFFFF"
-            android:pathData="M54,30 C40.7,30 30,40.7 30,54 C30,67.3 40.7,78 54,78 C67.3,78 78,67.3 78,54 C78,40.7 67.3,30 54,30 Z M54,73 C43.5,73 35,64.5 35,54 C35,43.5 43.5,35 54,35 C64.5,35 73,43.5 73,54 C73,64.5 64.5,73 54,73 Z" />
-        <path
-            android:fillColor="#FFFFFF"
-            android:pathData="M55.5,42 L51.5,42 L51.5,55 L62.5,61.6 L64.5,58.3 L55.5,53 Z" />
+            android:pathData="M22,47 L14,57 L30,57 Z" />
     </group>
 </vector>

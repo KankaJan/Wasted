@@ -1,13 +1,13 @@
 package com.nexttimeemail.ui.meeting
 
 import android.os.SystemClock
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.nexttimeemail.data.MeetingRecord
 import com.nexttimeemail.data.MeetingRepository
-import com.nexttimeemail.data.SettingsStore
 import com.nexttimeemail.domain.CostCalculator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,62 +43,81 @@ data class MeetingUiState(
         CostCalculator.formatMoney(cost, currencyCode, locale)
 }
 
-/**
- * Drives the live meeting: ticks the cost once per second and, on end, writes a
- * history record. Elapsed time is derived from a monotonic clock so it survives
- * pauses and isn't thrown off by drift in the tick loop.
- */
-class MeetingViewModel(
-    private val repository: MeetingRepository,
-    private val settings: SettingsStore,
-) : ViewModel() {
+/** Immutable description of a meeting to start, assembled from the roster. */
+data class MeetingParams(
+    val attendeeCount: Int,
+    val perHourTotal: Double,
+    val currencyCode: String,
+    val recipients: List<String>,
+    val reminderThreshold: Double,
+)
 
-    private val _uiState = MutableStateFlow(MeetingUiState())
-    val uiState: StateFlow<MeetingUiState> = _uiState.asStateFlow()
+/**
+ * Process-wide owner of the running meeting: the 1 s cost ticker, the public
+ * state, the reminder-buzz events, and history persistence on end.
+ *
+ * It lives outside any ViewModel or Activity so the meeting keeps running (and
+ * the foreground-service notification keeps updating) while the app is in the
+ * background. Elapsed time is derived from a monotonic clock, so it is immune to
+ * tick drift and survives pauses.
+ */
+object MeetingEngine {
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    private val _state = MutableStateFlow(MeetingUiState())
+    val state: StateFlow<MeetingUiState> = _state.asStateFlow()
 
     /** Emits once each time the cost crosses a new reminder threshold step. */
     private val _buzz = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val buzz: SharedFlow<Unit> = _buzz.asSharedFlow()
 
+    private var repository: MeetingRepository? = null
+
     private var accumulatedMillis = 0L
-    private var lastResumeUptime = SystemClock.elapsedRealtime()
+    private var lastResumeUptime = 0L
     private var ticker: Job? = null
-    private var loaded = false
     private var lastBuzzStep = 0
 
-    /** Loads the current roster and starts the clock. Safe to call repeatedly. */
-    fun startIfNeeded() {
-        if (loaded) return
-        loaded = true
-        viewModelScope.launch {
-            val attendees = repository.attendeesSnapshot()
-            _uiState.update {
-                it.copy(
-                    attendeeCount = attendees.size,
-                    perHourTotal = CostCalculator.perHourTotal(attendees),
-                    currencyCode = settings.currencyCode,
-                    recipients = attendees.mapNotNull { a -> a.email?.trim()?.takeIf(String::isNotEmpty) },
-                    startedAt = System.currentTimeMillis(),
-                    reminderThreshold = settings.reminderThreshold,
-                )
-            }
-            lastResumeUptime = SystemClock.elapsedRealtime()
-            startTicker()
-        }
+    /** True while a meeting is running (i.e. not ended). */
+    val isActive: Boolean get() = _state.value.phase == MeetingPhase.RUNNING && ticker != null
+
+    /** Wire up persistence once, from the Application. */
+    fun init(repository: MeetingRepository) {
+        this.repository = repository
+    }
+
+    /** Begin a brand-new meeting, replacing any previous session. */
+    fun start(params: MeetingParams) {
+        ticker?.cancel()
+        accumulatedMillis = 0L
+        lastBuzzStep = 0
+        lastResumeUptime = SystemClock.elapsedRealtime()
+        _state.value = MeetingUiState(
+            phase = MeetingPhase.RUNNING,
+            running = true,
+            elapsedMillis = 0,
+            attendeeCount = params.attendeeCount,
+            perHourTotal = params.perHourTotal,
+            currencyCode = params.currencyCode,
+            recipients = params.recipients,
+            startedAt = System.currentTimeMillis(),
+            reminderThreshold = params.reminderThreshold,
+        )
+        startTicker()
     }
 
     private fun startTicker() {
         ticker?.cancel()
-        ticker = viewModelScope.launch {
+        ticker = scope.launch {
             while (true) {
-                val updated = _uiState.updateAndGet { it.copy(elapsedMillis = currentElapsed()) }
+                val updated = _state.updateAndGet { it.copy(elapsedMillis = currentElapsed()) }
                 maybeBuzz(updated)
                 delay(1_000)
             }
         }
     }
 
-    /** Buzzes once whenever the cost reaches a new multiple of the reminder threshold. */
     private fun maybeBuzz(state: MeetingUiState) {
         if (!state.reminderEnabled) return
         val step = CostCalculator.reminderStep(state.cost, state.reminderThreshold)
@@ -112,32 +131,35 @@ class MeetingViewModel(
         accumulatedMillis + (SystemClock.elapsedRealtime() - lastResumeUptime)
 
     fun togglePause() {
-        val state = _uiState.value
+        val state = _state.value
         if (state.phase != MeetingPhase.RUNNING) return
         if (state.running) {
             accumulatedMillis = currentElapsed()
             ticker?.cancel()
-            _uiState.update { it.copy(running = false, elapsedMillis = accumulatedMillis) }
+            ticker = null
+            _state.update { it.copy(running = false, elapsedMillis = accumulatedMillis) }
         } else {
             lastResumeUptime = SystemClock.elapsedRealtime()
-            _uiState.update { it.copy(running = true) }
+            _state.update { it.copy(running = true) }
             startTicker()
         }
     }
 
-    /** Stops the clock, freezes the final figures and persists the meeting. */
-    fun endMeeting(locale: Locale) {
-        if (_uiState.value.phase == MeetingPhase.ENDED) return
+    /** Stop the clock, freeze the final figures and persist the meeting. */
+    fun end(locale: Locale = Locale.getDefault()) {
+        if (_state.value.phase == MeetingPhase.ENDED) return
         val finalElapsed = currentElapsed()
         ticker?.cancel()
+        ticker = null
         accumulatedMillis = finalElapsed
 
-        val frozen = _uiState.updateAndGet {
+        val frozen = _state.updateAndGet {
             it.copy(phase = MeetingPhase.ENDED, running = false, elapsedMillis = finalElapsed)
         }
 
-        viewModelScope.launch {
-            repository.recordMeeting(
+        val repo = repository ?: return
+        scope.launch {
+            repo.recordMeeting(
                 MeetingRecord(
                     startedAt = frozen.startedAt,
                     durationMillis = finalElapsed,
@@ -146,10 +168,5 @@ class MeetingViewModel(
                 ),
             )
         }
-    }
-
-    override fun onCleared() {
-        ticker?.cancel()
-        super.onCleared()
     }
 }

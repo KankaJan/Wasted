@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="430" height="240" viewBox="0 0 430 240" font-family="Segoe UI, Roboto, Arial, sans-serif">
+  <rect width="430" height="240" fill="#DADADA"/>
+  <text x="215" y="26" text-anchor="middle" font-size="14" fill="#222" font-weight="bold">Launcher icon — proposed design (preview, not a render)</text>
+
+  <!-- squircle-masked -->
+  <g transform="translate(40,50)">
+    <clipPath id="sq"><rect width="140" height="140" rx="34"/></clipPath>
+    <rect width="140" height="140" rx="34" fill="#1A1A1A"/>
+    <g clip-path="url(#sq)">
+      <g transform="translate(70,70) scale(1.296) translate(-54,-54)">
+        <g transform="translate(54,54) scale(0.86) translate(-54,-54)" fill="none" stroke="#FFFFFF" stroke-linecap="round">
+          <path d="M60,36 A22,22 0 1 1 60,80 A22,22 0 1 1 60,36 Z" stroke-width="3.2"/>
+          <path d="M60,58 L60,42" stroke-width="3.2"/>
+          <path d="M60,58 L73,65" stroke-width="3.2"/>
+          <path d="M32,18 L32,52" stroke-width="3.6"/>
+          <path d="M41,25 C41,19 25,19 25,27 C25,34 41,34 41,42 C41,50 25,50 25,43" stroke-width="3.6"/>
+          <path d="M40,84 A24,24 0 0 1 22,54" stroke-width="3.6"/>
+          <path d="M22,47 L14,57 L30,57 Z" fill="#FFFFFF" stroke="none"/>
+        </g>
+      </g>
+    </g>
+    <text x="70" y="162" text-anchor="middle" font-size="11" fill="#444">rounded (most launchers)</text>
+  </g>
+
+  <!-- circle-masked -->
+  <g transform="translate(240,50)">
+    <clipPath id="ci"><circle cx="70" cy="70" r="70"/></clipPath>
+    <circle cx="70" cy="70" r="70" fill="#1A1A1A"/>
+    <g clip-path="url(#ci)">
+      <g transform="translate(70,70) scale(1.296) translate(-54,-54)">
+        <g transform="translate(54,54) scale(0.86) translate(-54,-54)" fill="none" stroke="#FFFFFF" stroke-linecap="round">
+          <path d="M60,36 A22,22 0 1 1 60,80 A22,22 0 1 1 60,36 Z" stroke-width="3.2"/>
+          <path d="M60,58 L60,42" stroke-width="3.2"/>
+          <path d="M60,58 L73,65" stroke-width="3.2"/>
+          <path d="M32,18 L32,52" stroke-width="3.6"/>
+          <path d="M41,25 C41,19 25,19 25,27 C25,34 41,34 41,42 C41,50 25,50 25,43" stroke-width="3.6"/>
+          <path d="M40,84 A24,24 0 0 1 22,54" stroke-width="3.6"/>
+          <path d="M22,47 L14,57 L30,57 Z" fill="#FFFFFF" stroke="none"/>
+        </g>
+      </g>
+    </g>
+    <text x="70" y="162" text-anchor="middle" font-size="11" fill="#444">circular (Pixel etc.)</text>
+  </g>
+</svg>
