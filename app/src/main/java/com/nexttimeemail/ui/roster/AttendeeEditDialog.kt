@@ -8,11 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -26,15 +23,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nexttimeemail.R
 import com.nexttimeemail.data.Attendee
 import com.nexttimeemail.data.RateType
 import com.nexttimeemail.domain.CostCalculator
-
-/** Common currencies offered in the dropdown; the device default is added on top. */
-private val CommonCurrencies = listOf("USD", "EUR", "GBP", "CZK", "PLN", "CHF", "JPY", "INR")
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,12 +52,6 @@ fun AttendeeEditDialog(
 
     var nameError by remember { mutableStateOf(false) }
     var rateError by remember { mutableStateOf(false) }
-    var currencyExpanded by remember { mutableStateOf(false) }
-
-    val currencyOptions = remember(currency) {
-        (listOf(CostCalculator.defaultCurrencyCode()) + CommonCurrencies + currency)
-            .distinct()
-    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -128,49 +118,27 @@ fun AttendeeEditDialog(
                         modifier = Modifier.weight(1f),
                     )
 
-                    ExposedDropdownMenuBox(
-                        expanded = currencyExpanded,
-                        onExpandedChange = { currencyExpanded = it },
+                    OutlinedTextField(
+                        value = currency,
+                        // Free-text currency: keep it short and upper-cased as the user types.
+                        onValueChange = { currency = it.take(8).uppercase(Locale.ROOT) },
+                        label = { Text(stringResource(R.string.currency)) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
                         modifier = Modifier.width(120.dp),
-                    ) {
-                        OutlinedTextField(
-                            value = currency,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(R.string.currency)) },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = currencyExpanded)
-                            },
-                            modifier = Modifier
-                                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                                .fillMaxWidth(),
-                        )
-                        ExposedDropdownMenu(
-                            expanded = currencyExpanded,
-                            onDismissRequest = { currencyExpanded = false },
-                        ) {
-                            currencyOptions.forEach { code ->
-                                DropdownMenuItem(
-                                    text = { Text(code) },
-                                    onClick = {
-                                        currency = code
-                                        currencyExpanded = false
-                                    },
-                                )
-                            }
-                        }
-                    }
+                    )
                 }
 
                 Text(
                     text = stringResource(R.string.manday_note),
-                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
         },
         confirmButton = {
             TextButton(onClick = {
                 val parsedRate = rateText.replace(',', '.').toDoubleOrNull() ?: 0.0
+                val currencyCode = currency.trim().uppercase(Locale.ROOT)
                 nameError = name.isBlank()
                 rateError = parsedRate <= 0.0
                 if (!nameError && !rateError) {
@@ -180,7 +148,7 @@ fun AttendeeEditDialog(
                             email = email.trim().takeIf { it.isNotEmpty() },
                             rateType = rateType,
                             rateValue = parsedRate,
-                            currencyCode = currency,
+                            currencyCode = currencyCode.ifEmpty { CostCalculator.defaultCurrencyCode() },
                         ),
                     )
                 }
@@ -199,16 +167,3 @@ fun AttendeeEditDialog(
         },
     )
 }
-
-/** Keeps only digits and a single decimal separator while typing. */
-private fun String.filterAmount(): String {
-    val cleaned = filter { it.isDigit() || it == '.' || it == ',' }
-    val firstSep = cleaned.indexOfFirst { it == '.' || it == ',' }
-    if (firstSep == -1) return cleaned
-    val head = cleaned.substring(0, firstSep + 1)
-    val tail = cleaned.substring(firstSep + 1).filter { it.isDigit() }
-    return head + tail
-}
-
-private fun trimAmount(value: Double): String =
-    if (value % 1.0 == 0.0) value.toLong().toString() else value.toString()

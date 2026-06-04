@@ -34,6 +34,7 @@ import com.nexttimeemail.domain.CostCalculator
 import com.nexttimeemail.ui.AppViewModelProvider
 import com.nexttimeemail.ui.theme.MoneyCounterStyle
 import com.nexttimeemail.ui.theme.TimerStyle
+import com.nexttimeemail.util.buzz
 import com.nexttimeemail.util.formatDate
 import com.nexttimeemail.util.formatElapsed
 import com.nexttimeemail.util.sendMeetingEmail
@@ -50,6 +51,11 @@ fun MeetingScreen(
     val locale = Locale.getDefault()
 
     LaunchedEffect(Unit) { viewModel.startIfNeeded() }
+
+    // Buzz whenever the cost crosses a new reminder threshold step.
+    LaunchedEffect(Unit) {
+        viewModel.buzz.collect { buzz(context) }
+    }
 
     val titleRes = if (state.phase == MeetingPhase.RUNNING) {
         R.string.meeting_in_progress
@@ -70,6 +76,15 @@ fun MeetingScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+
+            if (state.reminderEnabled) {
+                Text(
+                    text = stringResource(R.string.reminder_active, formatThreshold(state.reminderThreshold)),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
 
             Text(
                 text = CostCalculator.formatTotals(state.costByCurrency, locale),
@@ -113,6 +128,10 @@ fun MeetingScreen(
         }
     }
 }
+
+/** Drops a trailing ".0" so a whole-number threshold reads as "100", not "100.0". */
+private fun formatThreshold(value: Double): String =
+    if (value % 1.0 == 0.0) value.toLong().toString() else value.toString()
 
 @Composable
 private fun RunningControls(

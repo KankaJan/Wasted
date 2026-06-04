@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Used for the optional cost-threshold reminder buzz. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <!-- Lets the app resolve installed email apps so the "send" button can show one. -->
     <queries>
         <intent>

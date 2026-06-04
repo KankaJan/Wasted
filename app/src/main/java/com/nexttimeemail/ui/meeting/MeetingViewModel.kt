@@ -5,11 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nexttimeemail.data.MeetingRecord
 import com.nexttimeemail.data.MeetingRepository
+import com.nexttimeemail.data.SettingsStore
 import com.nexttimeemail.domain.CostCalculator
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
@@ -26,7 +30,10 @@ data class MeetingUiState(
     val perHourByCurrency: Map<String, Double> = emptyMap(),
     val recipients: List<String> = emptyList(),
     val startedAt: Long = System.currentTimeMillis(),
+    val reminderThreshold: Double = 0.0,
 ) {
+    val reminderEnabled: Boolean get() = reminderThreshold > 0.0
+
     /** Live cost grouped by currency at the current elapsed time. */
     val costByCurrency: Map<String, Double>
         get() = CostCalculator.costAtElapsed(perHourByCurrency, elapsedMillis)
@@ -40,15 +47,23 @@ data class MeetingUiState(
  * history record. Elapsed time is derived from a monotonic clock so it survives
  * pauses and isn't thrown off by drift in the tick loop.
  */
-class MeetingViewModel(private val repository: MeetingRepository) : ViewModel() {
+class MeetingViewModel(
+    private val repository: MeetingRepository,
+    private val settings: SettingsStore,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MeetingUiState())
     val uiState: StateFlow<MeetingUiState> = _uiState.asStateFlow()
+
+    /** Emits once each time the cost crosses a new reminder threshold step. */
+    private val _buzz = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val buzz: SharedFlow<Unit> = _buzz.asSharedFlow()
 
     private var accumulatedMillis = 0L
     private var lastResumeUptime = SystemClock.elapsedRealtime()
     private var ticker: Job? = null
     private var loaded = false
+    private var lastBuzzStep = 0
 
     /** Loads the current roster and starts the clock. Safe to call repeatedly. */
     fun startIfNeeded() {
@@ -62,6 +77,7 @@ class MeetingViewModel(private val repository: MeetingRepository) : ViewModel() 
                     perHourByCurrency = CostCalculator.perHourByCurrency(attendees),
                     recipients = attendees.mapNotNull { a -> a.email?.trim()?.takeIf(String::isNotEmpty) },
                     startedAt = System.currentTimeMillis(),
+                    reminderThreshold = settings.reminderThreshold,
                 )
             }
             lastResumeUptime = SystemClock.elapsedRealtime()
@@ -73,9 +89,20 @@ class MeetingViewModel(private val repository: MeetingRepository) : ViewModel() 
         ticker?.cancel()
         ticker = viewModelScope.launch {
             while (true) {
-                _uiState.update { it.copy(elapsedMillis = currentElapsed()) }
+                val updated = _uiState.updateAndGet { it.copy(elapsedMillis = currentElapsed()) }
+                maybeBuzz(updated)
                 delay(1_000)
             }
+        }
+    }
+
+    /** Buzzes once whenever the cost reaches a new multiple of the reminder threshold. */
+    private fun maybeBuzz(state: MeetingUiState) {
+        if (!state.reminderEnabled) return
+        val step = CostCalculator.reminderStep(state.costByCurrency, state.reminderThreshold)
+        if (step > lastBuzzStep) {
+            lastBuzzStep = step
+            _buzz.tryEmit(Unit)
         }
     }
 

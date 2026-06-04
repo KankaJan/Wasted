@@ -11,6 +11,9 @@
     <string name="start_meeting">Start Meeting</string>
     <string name="history">History</string>
     <string name="need_one_attendee">Add at least one attendee with a rate first.</string>
+    <string name="reminder_label">Buzz every (optional)</string>
+    <string name="reminder_supporting">Cost step, e.g. 100. Leave empty to turn off.</string>
+    <string name="reminder_active">🔔 Buzzes every %1$s</string>
 
     <!-- Attendee editor -->
     <string name="name">Name</string>

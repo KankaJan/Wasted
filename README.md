@@ -8,9 +8,13 @@ better next time?*
 
 1. **Build the roster.** Tap **+** to add attendees. Each has a name, an
    optional email, and a rate — either **hourly** or **manday** (a manday is
-   treated as 8 working hours) — in their own currency.
+   treated as 8 working hours) — in their own currency (typed in freely, e.g.
+   `USD`, `EUR`, `CZK`). Optionally set a **buzz-every** threshold so your
+   phone vibrates each time the cost crosses a multiple of it (100 → buzz at
+   100, 200, 300…).
 2. **Start the meeting.** A big counter shows the accumulating cost, ticking
-   once per second, alongside the elapsed time. You can pause/resume.
+   once per second, alongside the elapsed time. You can pause/resume, and the
+   reminder buzzes at each threshold step.
 3. **End the meeting.** The final cost is frozen and the meeting is saved to
    history. One tap opens your email app pre-filled with:
 

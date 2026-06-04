@@ -11,8 +11,8 @@ import com.nexttimeemail.ui.roster.RosterViewModel
 /** Builds every view model from the app's single repository. */
 object AppViewModelProvider {
     val Factory = viewModelFactory {
-        initializer { RosterViewModel(app().repository) }
-        initializer { MeetingViewModel(app().repository) }
+        initializer { RosterViewModel(app().repository, app().settings) }
+        initializer { MeetingViewModel(app().repository, app().settings) }
         initializer { HistoryViewModel(app().repository) }
     }
 }

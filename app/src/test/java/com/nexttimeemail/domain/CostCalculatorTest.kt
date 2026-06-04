@@ -43,6 +43,24 @@ class CostCalculatorTest {
     }
 
     @Test
+    fun reminderStepCountsWholeThresholdsCrossed() {
+        assertEquals(0, CostCalculator.reminderStep(mapOf("USD" to 99.0), threshold = 100.0))
+        assertEquals(1, CostCalculator.reminderStep(mapOf("USD" to 100.0), threshold = 100.0))
+        assertEquals(3, CostCalculator.reminderStep(mapOf("USD" to 350.0), threshold = 100.0))
+    }
+
+    @Test
+    fun reminderStepIsDisabledWhenThresholdNotPositive() {
+        assertEquals(0, CostCalculator.reminderStep(mapOf("USD" to 999.0), threshold = 0.0))
+    }
+
+    @Test
+    fun reminderStepTakesHighestCurrency() {
+        val costs = mapOf("USD" to 120.0, "EUR" to 250.0)
+        assertEquals(2, CostCalculator.reminderStep(costs, threshold = 100.0))
+    }
+
+    @Test
     fun formatMoneyUsesGivenCurrency() {
         val formatted = CostCalculator.formatMoney(1234.5, "USD", Locale.US)
         assertEquals("$1,234.50", formatted)

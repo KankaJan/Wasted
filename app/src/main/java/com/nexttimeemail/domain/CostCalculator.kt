@@ -49,4 +49,15 @@ object CostCalculator {
 
     fun defaultCurrencyCode(locale: Locale = Locale.getDefault()): String =
         runCatching { Currency.getInstance(locale).currencyCode }.getOrDefault("USD")
+
+    /**
+     * How many whole [threshold] steps the cost has reached, used to drive the
+     * reminder buzz (threshold 100 -> 1 at 100, 2 at 200, ...). With multiple
+     * currencies the highest step reached by any single currency wins. Returns 0
+     * when the reminder is disabled ([threshold] <= 0).
+     */
+    fun reminderStep(costs: Map<String, Double>, threshold: Double): Int {
+        if (threshold <= 0.0) return 0
+        return costs.values.maxOfOrNull { (it / threshold).toInt() } ?: 0
+    }
 }

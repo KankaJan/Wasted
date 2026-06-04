@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
@@ -21,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -35,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,8 +57,14 @@ fun RosterScreen(
     viewModel: RosterViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val reminderThreshold by viewModel.reminderThreshold.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    // Local text mirror of the persisted threshold; 0 (or blank) means "off".
+    var reminderText by remember {
+        mutableStateOf(if (reminderThreshold > 0) trimAmount(reminderThreshold) else "")
+    }
 
     // null = closed; non-null Optional-ish: we use a sentinel for "add" vs "edit".
     var editing by remember { mutableStateOf<EditTarget?>(null) }
@@ -97,6 +106,13 @@ fun RosterScreen(
             StartBar(
                 perHourByCurrency = state.perHourByCurrency,
                 canStart = state.canStart,
+                reminderText = reminderText,
+                onReminderChange = { input ->
+                    reminderText = input.filterAmount()
+                    viewModel.setReminderThreshold(
+                        reminderText.replace(',', '.').toDoubleOrNull() ?: 0.0,
+                    )
+                },
                 onStart = {
                     if (state.canStart) {
                         onStartMeeting()
@@ -178,6 +194,8 @@ private fun EmptyRoster(modifier: Modifier = Modifier) {
 private fun StartBar(
     perHourByCurrency: Map<String, Double>,
     canStart: Boolean,
+    reminderText: String,
+    onReminderChange: (String) -> Unit,
     onStart: () -> Unit,
 ) {
     Card(
@@ -195,6 +213,15 @@ private fun StartBar(
                     CostCalculator.formatTotals(perHourByCurrency),
                 ),
                 style = MaterialTheme.typography.headlineSmall,
+            )
+            OutlinedTextField(
+                value = reminderText,
+                onValueChange = onReminderChange,
+                label = { Text(stringResource(R.string.reminder_label)) },
+                supportingText = { Text(stringResource(R.string.reminder_supporting)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             )
             Button(
                 onClick = onStart,
