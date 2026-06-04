@@ -13,11 +13,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.outlined.NotificationsNone
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -36,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,7 +50,10 @@ import com.nexttimeemail.R
 import com.nexttimeemail.data.Attendee
 import com.nexttimeemail.data.RateType
 import com.nexttimeemail.domain.CostCalculator
+import com.nexttimeemail.service.MeetingService
 import com.nexttimeemail.ui.AppViewModelProvider
+import com.nexttimeemail.ui.meeting.MeetingEngine
+import com.nexttimeemail.ui.meeting.MeetingParams
 import java.util.Locale
 import kotlinx.coroutines.launch
 
@@ -61,6 +67,7 @@ fun RosterScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val reminderThreshold by viewModel.reminderThreshold.collectAsStateWithLifecycle()
     val currencyCode by viewModel.currencyCode.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -81,8 +88,8 @@ fun RosterScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.roster_title)) },
                 actions = {
-                    androidx.compose.material3.IconButton(onClick = onOpenHistory) {
-                        Icon(Icons.AutoMirrored.Filled.List, contentDescription = stringResource(R.string.history))
+                    IconButton(onClick = onOpenHistory) {
+                        Icon(Icons.AutoMirrored.Outlined.List, contentDescription = stringResource(R.string.history))
                     }
                 },
             )
@@ -130,6 +137,18 @@ fun RosterScreen(
                 },
                 onStart = {
                     if (state.canStart) {
+                        MeetingEngine.start(
+                            MeetingParams(
+                                attendeeCount = state.attendees.size,
+                                perHourTotal = state.perHourTotal,
+                                currencyCode = currencyCode,
+                                recipients = state.attendees.mapNotNull {
+                                    it.email?.trim()?.takeIf(String::isNotEmpty)
+                                },
+                                reminderThreshold = reminderThreshold,
+                            ),
+                        )
+                        MeetingService.start(context)
                         onStartMeeting()
                     } else {
                         scope.launch { snackbarHostState.showSnackbar(needAttendeeMsg) }
@@ -162,7 +181,7 @@ private sealed interface EditTarget {
 
 @Composable
 private fun AttendeeRow(attendee: Attendee, currencyCode: String, onClick: () -> Unit) {
-    Card(
+    OutlinedCard(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
     ) {
         Row(
@@ -216,9 +235,8 @@ private fun StartBar(
     onReminderChange: (String) -> Unit,
     onStart: () -> Unit,
 ) {
-    Card(
+    OutlinedCard(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Text(
@@ -249,6 +267,10 @@ private fun StartBar(
                     onValueChange = onReminderChange,
                     label = { Text(stringResource(R.string.reminder_label)) },
                     singleLine = true,
+                    leadingIcon = {
+                        Icon(Icons.Outlined.NotificationsNone, contentDescription = null)
+                    },
+                    suffix = { Text(currencyCode) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.weight(1f),
                 )
@@ -259,12 +281,16 @@ private fun StartBar(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp),
             )
-            Button(
+            OutlinedButton(
                 onClick = onStart,
                 enabled = canStart,
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             ) {
-                Text(stringResource(R.string.start_meeting))
+                Icon(Icons.Outlined.PlayArrow, contentDescription = null)
+                Text(
+                    text = stringResource(R.string.start_meeting),
+                    modifier = Modifier.padding(start = 8.dp),
+                )
             }
         }
     }

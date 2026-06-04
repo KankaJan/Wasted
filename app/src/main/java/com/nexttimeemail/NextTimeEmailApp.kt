@@ -4,6 +4,7 @@ import android.app.Application
 import com.nexttimeemail.data.AppDatabase
 import com.nexttimeemail.data.MeetingRepository
 import com.nexttimeemail.data.SettingsStore
+import com.nexttimeemail.ui.meeting.MeetingEngine
 
 /**
  * Holds the single repository and settings instances. Manual DI is enough for an
@@ -17,4 +18,10 @@ class NextTimeEmailApp : Application() {
     }
 
     val settings: SettingsStore by lazy { SettingsStore(this) }
+
+    override fun onCreate() {
+        super.onCreate()
+        // Give the process-wide meeting engine a way to persist finished meetings.
+        MeetingEngine.init(repository)
+    }
 }

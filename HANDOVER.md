@@ -183,6 +183,24 @@ no-op on your local machine — locally just use Android Studio or your own SDK.
 
 ---
 
+## 4b. Background meeting + UI restyle (later additions)
+
+- **Foreground service:** the meeting clock now lives in a process-wide
+  `ui/meeting/MeetingEngine` (singleton) so it survives the UI lifecycle, and
+  `service/MeetingService` shows a live, updating notification (cost · elapsed)
+  with **Pause/End** actions and fires the reminder buzz while backgrounded.
+  Adds `POST_NOTIFICATIONS`, `FOREGROUND_SERVICE`,
+  `FOREGROUND_SERVICE_SPECIAL_USE`. `MainActivity` requests notifications at
+  runtime (Android 13+). `MeetingViewModel` was removed; screens observe the
+  engine directly and the roster starts it on "Start Meeting".
+- **Theme:** fixed minimalist palette (no dynamic color, always light) —
+  light-gray surfaces, black text, dark-gray outlined separators/cards. Start /
+  Pause / End are neutral **outlined** buttons with thin-line icons; the buzzer
+  uses a thin-line bell; rate type reads **"Man-day"**.
+- **Mockup:** `docs/ui-mockup.svg` previews the look (not a compiled shot).
+- **Still TODO:** real launcher icon (awaiting the asset); optional "resume
+  running meeting" navigation when re-opening from the notification.
+
 ## 5. Open product questions (nice-to-haves, not blockers)
 - Edit the reminder threshold *live* during a meeting (currently locked at start).
 - Per-meeting currency override (currently one global currency — by request).

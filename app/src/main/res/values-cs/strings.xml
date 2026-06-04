@@ -13,7 +13,12 @@
     <string name="need_one_attendee">Nejdřív přidejte aspoň jednoho účastníka se sazbou.</string>
     <string name="reminder_label">Bzučet každých (nepovinné)</string>
     <string name="reminder_supporting">Krok ceny, např. 100. Prázdné = vypnuto.</string>
-    <string name="reminder_active">🔔 Bzučí každých %1$s</string>
+    <string name="reminder_active">Bzučí každých %1$s</string>
+
+    <!-- Live meeting notification -->
+    <string name="notif_channel_name">Probíhající schůzka</string>
+    <string name="notif_channel_desc">Zobrazuje průběžnou cenu probíhající schůzky.</string>
+    <string name="notif_title_paused">Schůzka pozastavena</string>
 
     <!-- Attendee editor -->
     <string name="name">Jméno</string>
@@ -21,16 +26,16 @@
     <string name="currency">Měna</string>
     <string name="rate_type">Typ sazby</string>
     <string name="rate_hourly">Hodinová</string>
-    <string name="rate_manday">Manday</string>
+    <string name="rate_manday">Man-day</string>
     <string name="rate_value">Sazba</string>
     <string name="rate_hint_hourly">Částka za hodinu</string>
-    <string name="rate_hint_manday">Částka za manday (8 h)</string>
+    <string name="rate_hint_manday">Částka za Man-day (8 h)</string>
     <string name="save">Uložit</string>
     <string name="cancel">Zrušit</string>
     <string name="delete">Smazat</string>
     <string name="error_name_required">Jméno je povinné</string>
     <string name="error_rate_required">Zadejte sazbu větší než nula</string>
-    <string name="manday_note">Manday se počítá jako 8 pracovních hodin.</string>
+    <string name="manday_note">Man-day se počítá jako 8 pracovních hodin.</string>
 
     <!-- Meeting (live) screen -->
     <string name="meeting_in_progress">Schůzka probíhá</string>

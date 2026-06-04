@@ -1,44 +1,33 @@
 package com.nexttimeemail.ui.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 
-private val DarkColors = darkColorScheme(
-    primary = Green80,
-    secondary = GreenGrey80,
-    tertiary = Amber80,
-)
-
-private val LightColors = lightColorScheme(
-    primary = Green40,
-    secondary = GreenGrey40,
-    tertiary = Amber40,
+// Fixed minimalist scheme — intentionally no dynamic color and no dark variant, so
+// the app always reads as light-gray surfaces, black text and dark-gray separators.
+private val AppColors = lightColorScheme(
+    primary = Ink,
+    onPrimary = OnInk,
+    secondary = Ink,
+    onSecondary = OnInk,
+    tertiary = OnSurfaceMuted,
+    background = Surface,
+    onBackground = OnSurface,
+    surface = Surface,
+    onSurface = OnSurface,
+    surfaceVariant = SurfaceCard,
+    onSurfaceVariant = OnSurfaceMuted,
+    secondaryContainer = SurfaceCard,
+    onSecondaryContainer = OnSurface,
+    outline = Separator,
+    outlineVariant = Separator,
 )
 
 @Composable
-fun NextTimeEmailTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit,
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColors
-        else -> LightColors
-    }
-
+fun NextTimeEmailTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = AppColors,
         typography = Typography,
         content = content,
     )

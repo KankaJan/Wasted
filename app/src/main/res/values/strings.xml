@@ -13,7 +13,12 @@
     <string name="need_one_attendee">Add at least one attendee with a rate first.</string>
     <string name="reminder_label">Buzz every (optional)</string>
     <string name="reminder_supporting">Cost step, e.g. 100. Leave empty to turn off.</string>
-    <string name="reminder_active">🔔 Buzzes every %1$s</string>
+    <string name="reminder_active">Buzzes every %1$s</string>
+
+    <!-- Live meeting notification -->
+    <string name="notif_channel_name">Live meeting</string>
+    <string name="notif_channel_desc">Shows the running cost of an in-progress meeting.</string>
+    <string name="notif_title_paused">Meeting paused</string>
 
     <!-- Attendee editor -->
     <string name="name">Name</string>
@@ -21,16 +26,16 @@
     <string name="currency">Currency</string>
     <string name="rate_type">Rate type</string>
     <string name="rate_hourly">Hourly</string>
-    <string name="rate_manday">Manday</string>
+    <string name="rate_manday">Man-day</string>
     <string name="rate_value">Rate</string>
     <string name="rate_hint_hourly">Amount per hour</string>
-    <string name="rate_hint_manday">Amount per manday (8 h)</string>
+    <string name="rate_hint_manday">Amount per man-day (8 h)</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="error_name_required">Name is required</string>
     <string name="error_rate_required">Enter a rate greater than zero</string>
-    <string name="manday_note">A manday is treated as 8 working hours.</string>
+    <string name="manday_note">A man-day is treated as 8 working hours.</string>
 
     <!-- Meeting (live) screen -->
     <string name="meeting_in_progress">Meeting in progress</string>

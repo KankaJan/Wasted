@@ -4,6 +4,11 @@
     <!-- Used for the optional cost-threshold reminder buzz. -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Live meeting notification + keeping the meeting alive in the background. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
     <!-- Lets the app resolve installed email apps so the "send" button can show one. -->
     <queries>
         <intent>
@@ -33,6 +38,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".service.MeetingService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Shows the live cost of an in-progress meeting and keeps its timer running." />
+        </service>
     </application>
 
 </manifest>
