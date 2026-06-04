@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,14 +22,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nexttimeemail.R
 import com.nexttimeemail.data.Attendee
 import com.nexttimeemail.data.RateType
-import com.nexttimeemail.domain.CostCalculator
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,9 +41,6 @@ fun AttendeeEditDialog(
     var rateType by remember { mutableStateOf(initial?.rateType ?: RateType.HOURLY) }
     var rateText by remember {
         mutableStateOf(initial?.rateValue?.takeIf { it > 0 }?.let { trimAmount(it) } ?: "")
-    }
-    var currency by remember {
-        mutableStateOf(initial?.currencyCode ?: CostCalculator.defaultCurrencyCode())
     }
 
     var nameError by remember { mutableStateOf(false) }
@@ -96,38 +89,26 @@ fun AttendeeEditDialog(
                     ) { Text(stringResource(R.string.rate_manday)) }
                 }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedTextField(
-                        value = rateText,
-                        onValueChange = { rateText = it.filterAmount(); rateError = false },
-                        label = { Text(stringResource(R.string.rate_value)) },
-                        singleLine = true,
-                        isError = rateError,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        supportingText = {
-                            Text(
-                                stringResource(
-                                    if (rateType == RateType.HOURLY) {
-                                        R.string.rate_hint_hourly
-                                    } else {
-                                        R.string.rate_hint_manday
-                                    },
-                                ),
-                            )
-                        },
-                        modifier = Modifier.weight(1f),
-                    )
-
-                    OutlinedTextField(
-                        value = currency,
-                        // Free-text currency: keep it short and upper-cased as the user types.
-                        onValueChange = { currency = it.take(8).uppercase(Locale.ROOT) },
-                        label = { Text(stringResource(R.string.currency)) },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
-                        modifier = Modifier.width(120.dp),
-                    )
-                }
+                OutlinedTextField(
+                    value = rateText,
+                    onValueChange = { rateText = it.filterAmount(); rateError = false },
+                    label = { Text(stringResource(R.string.rate_value)) },
+                    singleLine = true,
+                    isError = rateError,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    supportingText = {
+                        Text(
+                            stringResource(
+                                if (rateType == RateType.HOURLY) {
+                                    R.string.rate_hint_hourly
+                                } else {
+                                    R.string.rate_hint_manday
+                                },
+                            ),
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
 
                 Text(
                     text = stringResource(R.string.manday_note),
@@ -138,7 +119,6 @@ fun AttendeeEditDialog(
         confirmButton = {
             TextButton(onClick = {
                 val parsedRate = rateText.replace(',', '.').toDoubleOrNull() ?: 0.0
-                val currencyCode = currency.trim().uppercase(Locale.ROOT)
                 nameError = name.isBlank()
                 rateError = parsedRate <= 0.0
                 if (!nameError && !rateError) {
@@ -148,7 +128,6 @@ fun AttendeeEditDialog(
                             email = email.trim().takeIf { it.isNotEmpty() },
                             rateType = rateType,
                             rateValue = parsedRate,
-                            currencyCode = currencyCode.ifEmpty { CostCalculator.defaultCurrencyCode() },
                         ),
                     )
                 }

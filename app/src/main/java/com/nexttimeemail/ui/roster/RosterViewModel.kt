@@ -16,9 +16,9 @@ import kotlinx.coroutines.launch
 
 data class RosterUiState(
     val attendees: List<Attendee> = emptyList(),
-    val perHourByCurrency: Map<String, Double> = emptyMap(),
+    val perHourTotal: Double = 0.0,
 ) {
-    val canStart: Boolean get() = perHourByCurrency.isNotEmpty()
+    val canStart: Boolean get() = perHourTotal > 0.0
 }
 
 class RosterViewModel(
@@ -30,11 +30,15 @@ class RosterViewModel(
     private val _reminderThreshold = MutableStateFlow(settings.reminderThreshold)
     val reminderThreshold: StateFlow<Double> = _reminderThreshold.asStateFlow()
 
+    /** Currency code shared by every attendee. */
+    private val _currencyCode = MutableStateFlow(settings.currencyCode)
+    val currencyCode: StateFlow<String> = _currencyCode.asStateFlow()
+
     val uiState: StateFlow<RosterUiState> = repository.attendees
         .map { attendees ->
             RosterUiState(
                 attendees = attendees,
-                perHourByCurrency = CostCalculator.perHourByCurrency(attendees),
+                perHourTotal = CostCalculator.perHourTotal(attendees),
             )
         }
         .stateIn(
@@ -55,5 +59,10 @@ class RosterViewModel(
         val sanitized = value.coerceAtLeast(0.0)
         settings.reminderThreshold = sanitized
         _reminderThreshold.value = sanitized
+    }
+
+    fun setCurrencyCode(value: String) {
+        settings.currencyCode = value
+        _currencyCode.value = settings.currencyCode
     }
 }

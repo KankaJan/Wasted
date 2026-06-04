@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [Attendee::class, MeetingRecord::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)
@@ -27,7 +27,10 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "nexttimeemail.db",
-                ).build().also { instance = it }
+                )
+                    // Dropping the per-attendee currency column; no released data to preserve.
+                    .fallbackToDestructiveMigration()
+                    .build().also { instance = it }
             }
     }
 }

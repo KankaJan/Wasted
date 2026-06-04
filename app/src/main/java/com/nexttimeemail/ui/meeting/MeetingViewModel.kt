@@ -27,19 +27,20 @@ data class MeetingUiState(
     val running: Boolean = true,
     val elapsedMillis: Long = 0,
     val attendeeCount: Int = 0,
-    val perHourByCurrency: Map<String, Double> = emptyMap(),
+    val perHourTotal: Double = 0.0,
+    val currencyCode: String = "USD",
     val recipients: List<String> = emptyList(),
     val startedAt: Long = System.currentTimeMillis(),
     val reminderThreshold: Double = 0.0,
 ) {
     val reminderEnabled: Boolean get() = reminderThreshold > 0.0
 
-    /** Live cost grouped by currency at the current elapsed time. */
-    val costByCurrency: Map<String, Double>
-        get() = CostCalculator.costAtElapsed(perHourByCurrency, elapsedMillis)
+    /** Live cost at the current elapsed time. */
+    val cost: Double
+        get() = CostCalculator.costAtElapsed(perHourTotal, elapsedMillis)
 
     fun costSummary(locale: Locale = Locale.getDefault()): String =
-        CostCalculator.formatTotals(costByCurrency, locale)
+        CostCalculator.formatMoney(cost, currencyCode, locale)
 }
 
 /**
@@ -74,7 +75,8 @@ class MeetingViewModel(
             _uiState.update {
                 it.copy(
                     attendeeCount = attendees.size,
-                    perHourByCurrency = CostCalculator.perHourByCurrency(attendees),
+                    perHourTotal = CostCalculator.perHourTotal(attendees),
+                    currencyCode = settings.currencyCode,
                     recipients = attendees.mapNotNull { a -> a.email?.trim()?.takeIf(String::isNotEmpty) },
                     startedAt = System.currentTimeMillis(),
                     reminderThreshold = settings.reminderThreshold,
@@ -99,7 +101,7 @@ class MeetingViewModel(
     /** Buzzes once whenever the cost reaches a new multiple of the reminder threshold. */
     private fun maybeBuzz(state: MeetingUiState) {
         if (!state.reminderEnabled) return
-        val step = CostCalculator.reminderStep(state.costByCurrency, state.reminderThreshold)
+        val step = CostCalculator.reminderStep(state.cost, state.reminderThreshold)
         if (step > lastBuzzStep) {
             lastBuzzStep = step
             _buzz.tryEmit(Unit)

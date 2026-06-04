@@ -87,7 +87,7 @@ fun MeetingScreen(
             }
 
             Text(
-                text = CostCalculator.formatTotals(state.costByCurrency, locale),
+                text = CostCalculator.formatMoney(state.cost, state.currencyCode, locale),
                 style = MoneyCounterStyle,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,

@@ -8,10 +8,10 @@ better next time?*
 
 1. **Build the roster.** Tap **+** to add attendees. Each has a name, an
    optional email, and a rate — either **hourly** or **manday** (a manday is
-   treated as 8 working hours) — in their own currency (typed in freely, e.g.
-   `USD`, `EUR`, `CZK`). Optionally set a **buzz-every** threshold so your
-   phone vibrates each time the cost crosses a multiple of it (100 → buzz at
-   100, 200, 300…).
+   treated as 8 working hours). One **currency** is shared by everyone, typed
+   in freely on the roster screen (e.g. `USD`, `EUR`, `CZK`). Optionally set a
+   **buzz-every** threshold so your phone vibrates each time the cost crosses a
+   multiple of it (100 → buzz at 100, 200, 300…).
 2. **Start the meeting.** A big counter shows the accumulating cost, ticking
    once per second, alongside the elapsed time. You can pause/resume, and the
    reminder buzzes at each threshold step.
@@ -23,8 +23,8 @@ better next time?*
 
    …addressed to every attendee who has an email.
 
-Costs are grouped **per currency** (no FX conversion is performed), so a mixed
-team shows e.g. `$240 + €100`.
+All attendees share a single currency, so the cost is one plain figure that
+gets the currency symbol only when displayed.
 
 ## How it's built
 

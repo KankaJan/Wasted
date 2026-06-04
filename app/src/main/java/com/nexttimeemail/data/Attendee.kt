@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * A meeting participant and their cost. [rateValue] is expressed in [currencyCode]
- * and interpreted according to [rateType].
+ * A meeting participant and their cost. [rateValue] is interpreted according to
+ * [rateType]. The currency is a single global app setting, not stored per attendee.
  */
 @Entity(tableName = "attendees")
 data class Attendee(
@@ -14,7 +14,6 @@ data class Attendee(
     val email: String? = null,
     val rateType: RateType = RateType.HOURLY,
     val rateValue: Double = 0.0,
-    val currencyCode: String = "USD",
 ) {
     /** The participant's cost per hour, normalising manday rates to an hourly figure. */
     val hourlyRate: Double

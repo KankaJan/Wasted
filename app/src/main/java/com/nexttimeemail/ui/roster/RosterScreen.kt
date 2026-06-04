@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,6 +48,7 @@ import com.nexttimeemail.data.Attendee
 import com.nexttimeemail.data.RateType
 import com.nexttimeemail.domain.CostCalculator
 import com.nexttimeemail.ui.AppViewModelProvider
+import java.util.Locale
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,6 +60,7 @@ fun RosterScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val reminderThreshold by viewModel.reminderThreshold.collectAsStateWithLifecycle()
+    val currencyCode by viewModel.currencyCode.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -65,6 +68,8 @@ fun RosterScreen(
     var reminderText by remember {
         mutableStateOf(if (reminderThreshold > 0) trimAmount(reminderThreshold) else "")
     }
+    // Local text mirror of the persisted currency code.
+    var currencyText by remember { mutableStateOf(currencyCode) }
 
     // null = closed; non-null Optional-ish: we use a sentinel for "add" vs "edit".
     var editing by remember { mutableStateOf<EditTarget?>(null) }
@@ -98,14 +103,24 @@ fun RosterScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(state.attendees, key = { it.id }) { attendee ->
-                        AttendeeRow(attendee = attendee, onClick = { editing = EditTarget.Existing(attendee) })
+                        AttendeeRow(
+                            attendee = attendee,
+                            currencyCode = currencyCode,
+                            onClick = { editing = EditTarget.Existing(attendee) },
+                        )
                     }
                 }
             }
 
             StartBar(
-                perHourByCurrency = state.perHourByCurrency,
+                perHourTotal = state.perHourTotal,
+                currencyCode = currencyCode,
                 canStart = state.canStart,
+                currencyText = currencyText,
+                onCurrencyChange = { input ->
+                    currencyText = input.take(8).uppercase(Locale.ROOT)
+                    viewModel.setCurrencyCode(currencyText)
+                },
                 reminderText = reminderText,
                 onReminderChange = { input ->
                     reminderText = input.filterAmount()
@@ -146,7 +161,7 @@ private sealed interface EditTarget {
 }
 
 @Composable
-private fun AttendeeRow(attendee: Attendee, onClick: () -> Unit) {
+private fun AttendeeRow(attendee: Attendee, currencyCode: String, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
     ) {
@@ -164,14 +179,14 @@ private fun AttendeeRow(attendee: Attendee, onClick: () -> Unit) {
                     )
                 }
             }
-            Text(rateLabel(attendee), style = MaterialTheme.typography.titleSmall)
+            Text(rateLabel(attendee, currencyCode), style = MaterialTheme.typography.titleSmall)
         }
     }
 }
 
 @Composable
-private fun rateLabel(attendee: Attendee): String {
-    val amount = CostCalculator.formatMoney(attendee.rateValue, attendee.currencyCode)
+private fun rateLabel(attendee: Attendee, currencyCode: String): String {
+    val amount = CostCalculator.formatMoney(attendee.rateValue, currencyCode)
     val unit = stringResource(
         if (attendee.rateType == RateType.HOURLY) R.string.rate_hourly else R.string.rate_manday,
     )
@@ -192,8 +207,11 @@ private fun EmptyRoster(modifier: Modifier = Modifier) {
 
 @Composable
 private fun StartBar(
-    perHourByCurrency: Map<String, Double>,
+    perHourTotal: Double,
+    currencyCode: String,
     canStart: Boolean,
+    currencyText: String,
+    onCurrencyChange: (String) -> Unit,
     reminderText: String,
     onReminderChange: (String) -> Unit,
     onStart: () -> Unit,
@@ -210,18 +228,36 @@ private fun StartBar(
             Text(
                 text = stringResource(
                     R.string.burn_rate_per_hour,
-                    CostCalculator.formatTotals(perHourByCurrency),
+                    CostCalculator.formatMoney(perHourTotal, currencyCode),
                 ),
                 style = MaterialTheme.typography.headlineSmall,
             )
-            OutlinedTextField(
-                value = reminderText,
-                onValueChange = onReminderChange,
-                label = { Text(stringResource(R.string.reminder_label)) },
-                supportingText = { Text(stringResource(R.string.reminder_supporting)) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                OutlinedTextField(
+                    value = currencyText,
+                    onValueChange = onCurrencyChange,
+                    label = { Text(stringResource(R.string.currency)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = reminderText,
+                    onValueChange = onReminderChange,
+                    label = { Text(stringResource(R.string.reminder_label)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Text(
+                text = stringResource(R.string.reminder_supporting),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp),
             )
             Button(
                 onClick = onStart,
