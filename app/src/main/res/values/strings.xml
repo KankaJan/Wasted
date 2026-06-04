@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">NextTimeEmail</string>
+
+    <!-- Roster screen -->
+    <string name="roster_title">Who\'s in the meeting?</string>
+    <string name="roster_empty">No attendees yet.\nTap + to add the first one.</string>
+    <string name="add_attendee">Add attendee</string>
+    <string name="edit_attendee">Edit attendee</string>
+    <string name="burn_rate">Team burn rate</string>
+    <string name="burn_rate_per_hour">%1$s / hour</string>
+    <string name="start_meeting">Start Meeting</string>
+    <string name="history">History</string>
+    <string name="need_one_attendee">Add at least one attendee with a rate first.</string>
+
+    <!-- Attendee editor -->
+    <string name="name">Name</string>
+    <string name="email">Email (optional)</string>
+    <string name="currency">Currency</string>
+    <string name="rate_type">Rate type</string>
+    <string name="rate_hourly">Hourly</string>
+    <string name="rate_manday">Manday</string>
+    <string name="rate_value">Rate</string>
+    <string name="rate_hint_hourly">Amount per hour</string>
+    <string name="rate_hint_manday">Amount per manday (8 h)</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="error_name_required">Name is required</string>
+    <string name="error_rate_required">Enter a rate greater than zero</string>
+    <string name="manday_note">A manday is treated as 8 working hours.</string>
+
+    <!-- Meeting (live) screen -->
+    <string name="meeting_in_progress">Meeting in progress</string>
+    <string name="elapsed">Elapsed</string>
+    <string name="attendees_count">%1$d attendee(s)</string>
+    <string name="end_meeting">End Meeting</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+
+    <!-- Result screen -->
+    <string name="result_title">Time\'s up</string>
+    <string name="final_cost">Final cost</string>
+    <string name="duration">Duration</string>
+    <string name="send_email">Email the attendees</string>
+    <string name="done">Done</string>
+    <string name="no_recipients">No attendee has an email address — nothing to send.</string>
+    <string name="no_email_app">No email app found on this device.</string>
+
+    <!-- Email content -->
+    <string name="email_subject">Meeting %1$s — was it worth %2$s?</string>
+    <string name="email_body">Meeting %1$s cost %2$s.\n\nWas it worth it?\n\nWouldn\'t an email have been better next time?\n\n— sent from NextTimeEmail</string>
+
+    <!-- History screen -->
+    <string name="history_title">Past meetings</string>
+    <string name="history_empty">No meetings recorded yet.</string>
+    <string name="history_row">%1$s · %2$s</string>
+    <string name="clear_history">Clear history</string>
+    <string name="back">Back</string>
+</resources>

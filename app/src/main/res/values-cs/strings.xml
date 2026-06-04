@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">NextTimeEmail</string>
+
+    <!-- Roster screen -->
+    <string name="roster_title">Kdo je na schůzce?</string>
+    <string name="roster_empty">Zatím žádní účastníci.\nKlepnutím na + přidáte prvního.</string>
+    <string name="add_attendee">Přidat účastníka</string>
+    <string name="edit_attendee">Upravit účastníka</string>
+    <string name="burn_rate">Náklady týmu</string>
+    <string name="burn_rate_per_hour">%1$s / hodinu</string>
+    <string name="start_meeting">Zahájit schůzku</string>
+    <string name="history">Historie</string>
+    <string name="need_one_attendee">Nejdřív přidejte aspoň jednoho účastníka se sazbou.</string>
+
+    <!-- Attendee editor -->
+    <string name="name">Jméno</string>
+    <string name="email">E-mail (nepovinné)</string>
+    <string name="currency">Měna</string>
+    <string name="rate_type">Typ sazby</string>
+    <string name="rate_hourly">Hodinová</string>
+    <string name="rate_manday">Manday</string>
+    <string name="rate_value">Sazba</string>
+    <string name="rate_hint_hourly">Částka za hodinu</string>
+    <string name="rate_hint_manday">Částka za manday (8 h)</string>
+    <string name="save">Uložit</string>
+    <string name="cancel">Zrušit</string>
+    <string name="delete">Smazat</string>
+    <string name="error_name_required">Jméno je povinné</string>
+    <string name="error_rate_required">Zadejte sazbu větší než nula</string>
+    <string name="manday_note">Manday se počítá jako 8 pracovních hodin.</string>
+
+    <!-- Meeting (live) screen -->
+    <string name="meeting_in_progress">Schůzka probíhá</string>
+    <string name="elapsed">Uplynulo</string>
+    <string name="attendees_count">%1$d účastníků</string>
+    <string name="end_meeting">Ukončit schůzku</string>
+    <string name="pause">Pozastavit</string>
+    <string name="resume">Pokračovat</string>
+
+    <!-- Result screen -->
+    <string name="result_title">Čas vypršel</string>
+    <string name="final_cost">Konečná cena</string>
+    <string name="duration">Doba trvání</string>
+    <string name="send_email">Poslat e-mail účastníkům</string>
+    <string name="done">Hotovo</string>
+    <string name="no_recipients">Žádný účastník nemá e-mail — není co odeslat.</string>
+    <string name="no_email_app">V zařízení nebyla nalezena žádná e-mailová aplikace.</string>
+
+    <!-- Email content -->
+    <string name="email_subject">Schůzka %1$s — stála za %2$s?</string>
+    <string name="email_body">Schůzka %1$s stála %2$s.\n\nStála za to?\n\nNebyl by příště lepší e-mail?\n\n— odesláno z aplikace NextTimeEmail</string>
+
+    <!-- History screen -->
+    <string name="history_title">Minulé schůzky</string>
+    <string name="history_empty">Zatím nejsou zaznamenány žádné schůzky.</string>
+    <string name="history_row">%1$s · %2$s</string>
+    <string name="clear_history">Vymazat historii</string>
+    <string name="back">Zpět</string>
+</resources>
