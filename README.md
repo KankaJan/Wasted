@@ -1,6 +1,6 @@
 # Wasted
 
-*(repository: NextTimeEmail · package `com.nexttimeemail`)*
+*(former repository: NextTimeEmail · package `com.nexttimeemail`)*
 
 A minimalistic Android app that tells you, in real time, how much a meeting is
 costing — then helps you ask the obvious question: *we wasted this much… wouldn't
