@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NextTimeEmail</string>
+    <string name="app_name">Wasted</string>
 
     <!-- Roster screen -->
     <string name="roster_title">Who\'s in the meeting?</string>
@@ -18,7 +18,7 @@
     <!-- Live meeting notification -->
     <string name="notif_channel_name">Live meeting</string>
     <string name="notif_channel_desc">Shows the running cost of an in-progress meeting.</string>
-    <string name="notif_title_paused">Meeting paused</string>
+    <string name="notif_title_paused">Wasting paused</string>
 
     <!-- Attendee editor -->
     <string name="name">Name</string>
@@ -38,7 +38,7 @@
     <string name="manday_note">A man-day is treated as 8 working hours.</string>
 
     <!-- Meeting (live) screen -->
-    <string name="meeting_in_progress">Meeting in progress</string>
+    <string name="meeting_in_progress">Wasting in progress</string>
     <string name="elapsed">Elapsed</string>
     <string name="attendees_count">%1$d attendee(s)</string>
     <string name="end_meeting">End Meeting</string>
@@ -55,8 +55,8 @@
     <string name="no_email_app">No email app found on this device.</string>
 
     <!-- Email content -->
-    <string name="email_subject">Meeting %1$s — was it worth %2$s?</string>
-    <string name="email_body">Meeting %1$s cost %2$s.\n\nWas it worth it?\n\nWouldn\'t an email have been better next time?\n\n— sent from NextTimeEmail</string>
+    <string name="email_subject">We wasted %2$s on this meeting — %1$s</string>
+    <string name="email_body">We wasted %2$s with this meeting on %1$s.\n\nWas it worth it? Wouldn\'t an email have been better next time?\n\n— sent from Wasted</string>
 
     <!-- History screen -->
     <string name="history_title">Past meetings</string>

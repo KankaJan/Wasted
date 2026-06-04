@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NextTimeEmail</string>
+    <string name="app_name">Wasted</string>
 
     <!-- Roster screen -->
     <string name="roster_title">Kdo je na schůzce?</string>
@@ -18,7 +18,7 @@
     <!-- Live meeting notification -->
     <string name="notif_channel_name">Probíhající schůzka</string>
     <string name="notif_channel_desc">Zobrazuje průběžnou cenu probíhající schůzky.</string>
-    <string name="notif_title_paused">Schůzka pozastavena</string>
+    <string name="notif_title_paused">Plýtvání pozastaveno</string>
 
     <!-- Attendee editor -->
     <string name="name">Jméno</string>
@@ -38,7 +38,7 @@
     <string name="manday_note">Man-day se počítá jako 8 pracovních hodin.</string>
 
     <!-- Meeting (live) screen -->
-    <string name="meeting_in_progress">Schůzka probíhá</string>
+    <string name="meeting_in_progress">Plýtvání probíhá</string>
     <string name="elapsed">Uplynulo</string>
     <string name="attendees_count">%1$d účastníků</string>
     <string name="end_meeting">Ukončit schůzku</string>
@@ -55,8 +55,8 @@
     <string name="no_email_app">V zařízení nebyla nalezena žádná e-mailová aplikace.</string>
 
     <!-- Email content -->
-    <string name="email_subject">Schůzka %1$s — stála za %2$s?</string>
-    <string name="email_body">Schůzka %1$s stála %2$s.\n\nStála za to?\n\nNebyl by příště lepší e-mail?\n\n— odesláno z aplikace NextTimeEmail</string>
+    <string name="email_subject">Touto schůzkou jsme promrhali %2$s — %1$s</string>
+    <string name="email_body">Touto schůzkou jsme promrhali %2$s dne %1$s.\n\nStála za to? Nebyl by příště lepší e-mail?\n\n— odesláno z aplikace Wasted</string>
 
     <!-- History screen -->
     <string name="history_title">Minulé schůzky</string>
