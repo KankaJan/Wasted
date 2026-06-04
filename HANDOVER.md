@@ -101,12 +101,18 @@ SessionStart hook in §4 which provisions the SDK.
    wipe on upgrade is intentional.
 
 ### Definition of done
-- [x] Cost-engine unit tests pass (verified standalone; also run in CI).
-- [ ] `./gradlew assembleDebug` produces an APK (run by CI — confirm green).
-- [ ] `./gradlew lintDebug` clean (or triaged).
-- [ ] App runs: add attendees → start → cost ticks → buzz at threshold → end →
-      email composer opens with all attendees pre-filled.
+- [x] Cost-engine unit tests pass (verified standalone; also green in CI).
+- [x] `./gradlew assembleDebug` produces an APK — **green in CI run #1**
+      (`app-debug.apk` uploaded as an artifact).
+- [x] `./gradlew lintDebug` clean — **green in CI run #1**.
+- [ ] Manual run-through on a device/emulator: add attendees → start → cost
+      ticks → buzz at threshold → end → email composer opens with all
+      attendees pre-filled.
 - [ ] Replace the placeholder launcher icon (optional).
+
+> ✅ **The full Android build (unit tests + lint + assembleDebug) is green on
+> GitHub Actions.** Only the on-device manual smoke test and the optional icon
+> remain — neither is possible to run headlessly here.
 
 ---
 
