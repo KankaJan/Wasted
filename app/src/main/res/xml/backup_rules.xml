@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Legacy (Android 11 and below) auto-backup rules. Backups are disabled via
+  android:allowBackup="false", but keep the sensitive roster database excluded
+  here too as defense in depth.
+-->
 <full-backup-content>
-    <include domain="database" path="nexttimeemail.db" />
+    <exclude domain="database" path="nexttimeemail.db" />
+    <exclude domain="sharedpref" path="nexttimeemail.secure.xml" />
 </full-backup-content>
