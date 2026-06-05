@@ -11,6 +11,8 @@
     <string name="start_meeting">Zahájit schůzku</string>
     <string name="history">Historie</string>
     <string name="need_one_attendee">Nejdřív přidejte aspoň jednoho účastníka se sazbou.</string>
+    <string name="footer_credit_prefix">vytvořil </string>
+    <string name="footer_author">Jan Kanka</string>
     <string name="reminder_label">Bzučet každých (nepovinné)</string>
     <string name="reminder_supporting">Krok ceny, např. 100. Prázdné = vypnuto.</string>
     <string name="reminder_active">Bzučí každých %1$s</string>
