@@ -53,7 +53,9 @@ async function refresh() {
 function notify(amountLabel) {
   chrome.notifications.create({
     type: "basic",
-    iconUrl: "icons/icon128.png",
+    // Must be an absolute extension URL from a service worker; a relative path
+    // fails with "Unable to download all specified images".
+    iconUrl: chrome.runtime.getURL("icons/icon128.png"),
     title: "Wasted",
     message: `This meeting just passed ${amountLabel}. Was it worth it?`,
     priority: 1,
