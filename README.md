@@ -2,9 +2,17 @@
 
 *(former repository: NextTimeEmail · package `com.nexttimeemail`)*
 
-A minimalistic Android app that tells you, in real time, how much a meeting is
-costing — then helps you ask the obvious question: *we wasted this much… wouldn't
-an email have been better next time?*
+A minimalistic tool — an **Android app** *and* a **Chrome extension** — that
+tells you, in real time, how much a meeting is costing, then helps you ask the
+obvious question: *we wasted this much… wouldn't an email have been better next
+time?*
+
+This repo holds two independent front-ends that share only the cost idea:
+
+| Folder | What | Stack |
+| --- | --- | --- |
+| [`app/`](app) | Android app | Kotlin · Jetpack Compose · Room |
+| [`extension/`](extension) | Chrome extension (MV3) | Vanilla JS · `chrome.storage` |
 
 ## What it does
 
@@ -62,3 +70,21 @@ Requires the Android SDK (compileSdk 35) and JDK 17+.
 Or just open the project in Android Studio and hit Run.
 
 - **minSdk:** 26 (Android 8.0) · **targetSdk / compileSdk:** 35
+
+## Chrome extension
+
+A parallel browser version lives in [`extension/`](extension) — Manifest V3, no
+build step, no dependencies. It mirrors the app: roster, live per-second cost,
+buzz thresholds (as desktop notifications), history, and the pre-filled `mailto:`
+email, with a toolbar badge showing the running cost.
+
+```bash
+# load it
+#   chrome://extensions → enable Developer mode → Load unpacked → pick extension/
+cd extension && node --test          # run the cost-logic unit tests
+python3 icons/generate_icons.py      # regenerate the icons
+```
+
+See [`extension/README.md`](extension/README.md) for the architecture and the
+notes on MV3 background timing. The cost maths (`extension/src/cost.js`) is a
+direct port of the Android `CostCalculator`.
