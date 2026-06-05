@@ -1,6 +1,7 @@
 import * as store from "./store.js";
 import { perHourTotal, costAtElapsed, formatMoney, elapsedMillis, reminderStep } from "./cost.js";
 import { buildMeeting, pauseToggle, endMeeting } from "./meeting.js";
+import { renderBadge } from "./badge.js";
 
 const locale = chrome.i18n.getUILanguage();
 const t = (key) => chrome.i18n.getMessage(key) || key;
@@ -124,6 +125,9 @@ async function renderMeeting() {
   const ms = elapsedMillis(m);
   const cost = costAtElapsed(m.perHour, ms);
 
+  // Keep the pinned toolbar badge live (every second) while the popup is open.
+  renderBadge(m);
+
   $("meetingTitle").textContent = ended ? t("resultTitle") : t("meetingInProgress");
   $("mAttendees").textContent = `${m.attendeeCount} ${t("attendees")}`;
   const rem = $("mReminder");
@@ -175,6 +179,7 @@ async function emailAttendees() {
 
 async function doneMeeting() {
   await store.setMeeting(null);
+  renderBadge(null);
   show("rosterView");
   renderRoster();
 }
