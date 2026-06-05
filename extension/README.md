@@ -30,12 +30,18 @@ Manifest V3, no build step, no dependencies — load the folder as-is.
 | `mailto:` Intent | `chrome.tabs.create({ url: 'mailto:…' })` |
 
 ### The MV3 background note
-Service workers are ephemeral, so nothing ticks every second in the background.
-Cost is deterministic (`rate × elapsed`), so:
-- the **popup** computes the smooth 1 s counter from a stored `startTimestamp`;
-- the **service worker** (`src/background.js`) keeps the badge fresh via a coarse
-  repeating `chrome.alarms`, and schedules a **precise one-shot alarm** for the
-  exact moment the cost crosses the next threshold to fire the buzz notification.
+Service workers are ephemeral. Cost is deterministic (`rate × elapsed`), so:
+- the **popup** computes the smooth **1 s** counter and refreshes the toolbar
+  badge every second while it is open;
+- the **service worker** (`src/background.js`) keeps the badge live in the
+  background by running a ~**10 s** `setInterval` whose periodic `chrome.action`
+  calls also keep the worker alive; a 1-minute `chrome.alarms` backstop restarts
+  that ticker if the worker was terminated;
+- a **precise one-shot alarm** is scheduled for the exact moment the cost crosses
+  the next threshold to fire the buzz notification.
+
+So the badge updates every second with the popup open and roughly every 10 s with
+it closed — Chrome won't allow a true 1 s background loop in MV3.
 
 ## Develop
 - `node --test` — runs the cost-logic unit tests (`test/`).

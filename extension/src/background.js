@@ -1,43 +1,50 @@
 // Service worker: the "foreground service" equivalent. MV3 workers are ephemeral,
-// so nothing ticks every second here — instead we derive everything from the stored
-// meeting's timestamps and use chrome.alarms to wake up:
-//   - "badge"  : a coarse repeating alarm that keeps the toolbar badge fresh
-//   - "buzz"   : a one-shot alarm scheduled for the exact moment the cost crosses
-//                the next reminder threshold, which fires a desktop notification
+// so to keep the toolbar badge live while a meeting runs we:
+//   - run a short setInterval whose periodic chrome.action calls also keep the
+//     worker alive (resets the ~30s idle timer) -> ~10s badge updates in the
+//     background even with the popup closed;
+//   - keep a 1-minute "badge" alarm as a backstop that restarts the ticker if
+//     the worker was nonetheless terminated;
+//   - schedule a precise one-shot "buzz" alarm for the exact moment the cost
+//     crosses the next reminder threshold (desktop notification).
+// The popup additionally refreshes the badge every second while it is open.
 
 import { getMeeting, setMeeting } from "./store.js";
 import { elapsedMillis, costAtElapsed, reminderStep, formatMoney } from "./cost.js";
 import { isActive } from "./meeting.js";
+import { renderBadge } from "./badge.js";
 
-const INK = "#1A1A1A";
+const TICK_MS = 10_000;
+let badgeTimer = null;
 
-function compactMoney(cost) {
-  const n = Math.floor(cost);
-  if (n < 1000) return String(n);
-  if (n < 100000) return Math.floor(n / 1000) + "k";
-  return "99k+";
+function ensureTicker() {
+  if (badgeTimer == null) badgeTimer = setInterval(refresh, TICK_MS);
+}
+function stopTicker() {
+  if (badgeTimer != null) {
+    clearInterval(badgeTimer);
+    badgeTimer = null;
+  }
 }
 
 async function refresh() {
   const meeting = await getMeeting();
+  await renderBadge(meeting);
 
   if (!isActive(meeting)) {
-    await chrome.action.setBadgeText({ text: "" });
+    stopTicker();
     await chrome.alarms.clear("badge");
     await chrome.alarms.clear("buzz");
     return;
   }
 
-  const now = Date.now();
-  const ms = elapsedMillis(meeting, now);
-  const cost = costAtElapsed(meeting.perHour, ms);
+  // Keep the worker alive (and the badge ticking) only while actually accruing.
+  if (meeting.running) ensureTicker();
+  else stopTicker();
 
-  // Badge + tooltip.
-  await chrome.action.setBadgeBackgroundColor({ color: INK });
-  await chrome.action.setBadgeText({ text: meeting.running ? compactMoney(cost) : "II" });
-  await chrome.action.setTitle({ title: `Wasted — ${formatMoney(cost, meeting.currency)}` });
+  const cost = costAtElapsed(meeting.perHour, elapsedMillis(meeting));
 
-  // Fire a buzz for every threshold step we have passed but not yet announced.
+  // Buzz backstop — the precise "buzz" alarm normally handles this first.
   if (meeting.threshold > 0 && meeting.running) {
     const step = reminderStep(cost, meeting.threshold);
     if (step > (meeting.lastBuzzStep || 0)) {
@@ -63,7 +70,7 @@ function notify(amountLabel) {
 }
 
 async function scheduleAlarms(meeting, cost) {
-  // Keep the badge fresh roughly once a minute while running.
+  // Backstop badge refresh that also restarts the ticker if the worker died.
   if (meeting.running) {
     await chrome.alarms.create("badge", { periodInMinutes: 1 });
   } else {
@@ -83,9 +90,7 @@ async function scheduleAlarms(meeting, cost) {
   }
 }
 
-chrome.alarms.onAlarm.addListener(() => {
-  refresh();
-});
+chrome.alarms.onAlarm.addListener(refresh);
 
 // React immediately when the popup starts/pauses/ends a meeting.
 chrome.storage.onChanged.addListener((changes, area) => {
