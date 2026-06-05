@@ -1,0 +1,29 @@
+name: Extension CI
+
+on:
+  push:
+    branches: ["**"]
+    paths: ["extension/**", ".github/workflows/extension.yml"]
+  pull_request:
+    paths: ["extension/**", ".github/workflows/extension.yml"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: extension
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Unit tests (cost logic)
+        run: node --test
+      - name: Validate JSON (manifest + locales)
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest.json ok')"
+          for f in _locales/*/messages.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8')); console.log('$f ok')"
+          done

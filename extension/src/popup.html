@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!-- ===== Roster view ===== -->
+    <section id="rosterView">
+      <header class="bar">
+        <h1>Wasted</h1>
+        <button id="openHistory" class="icon-btn" title="History" data-i18n-title="history">≡</button>
+      </header>
+
+      <ul id="attendeeList" class="list"></ul>
+      <p id="rosterEmpty" class="muted center" data-i18n="rosterEmpty">No attendees yet. Add the first one below.</p>
+
+      <form id="addForm" class="card add-form">
+        <input id="aName" type="text" placeholder="Name" data-i18n-ph="name" required />
+        <input id="aEmail" type="email" placeholder="Email (optional)" data-i18n-ph="email" />
+        <div class="row">
+          <select id="aType">
+            <option value="HOURLY" data-i18n="rateHourly">Hourly</option>
+            <option value="MANDAY" data-i18n="rateManday">Man-day</option>
+          </select>
+          <input id="aRate" type="number" min="0" step="any" placeholder="Rate" data-i18n-ph="rate" required />
+          <button type="submit" class="btn">+</button>
+        </div>
+      </form>
+
+      <div class="card">
+        <div class="muted small" data-i18n="burnRate">Team burn rate</div>
+        <div id="burnRate" class="big">—</div>
+        <div class="row">
+          <label class="field">
+            <span class="muted small" data-i18n="currency">Currency</span>
+            <input id="currency" type="text" maxlength="8" />
+          </label>
+          <label class="field">
+            <span class="muted small" data-i18n="reminderLabel">Buzz every</span>
+            <input id="threshold" type="number" min="0" step="any" placeholder="off" />
+          </label>
+        </div>
+        <button id="startBtn" class="btn primary block" data-i18n="startMeeting">Start Meeting</button>
+      </div>
+
+      <p class="footer muted center">
+        <span data-i18n="footerCredit">created by</span>
+        <a href="https://github.com/KankaJan" target="_blank" rel="noopener">Jan Kanka</a>
+      </p>
+    </section>
+
+    <!-- ===== Meeting / result view ===== -->
+    <section id="meetingView" hidden>
+      <header class="bar"><h1 id="meetingTitle">Wasting in progress</h1></header>
+      <div class="center stack">
+        <div id="mAttendees" class="muted small"></div>
+        <div id="mReminder" class="muted small reminder" hidden></div>
+        <div id="mCost" class="counter">—</div>
+        <div class="muted small" id="mElapsedLabel" data-i18n="elapsed">Elapsed</div>
+        <div id="mElapsed" class="timer">00:00:00</div>
+
+        <div id="runningControls" class="controls">
+          <button id="pauseBtn" class="btn block">⏸ <span data-i18n="pause">Pause</span></button>
+          <button id="endBtn" class="btn block">■ <span data-i18n="endMeeting">End Meeting</span></button>
+        </div>
+        <div id="endedControls" class="controls" hidden>
+          <button id="emailBtn" class="btn primary block" data-i18n="sendEmail">Email the attendees</button>
+          <button id="doneBtn" class="btn block" data-i18n="done">Done</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== History view ===== -->
+    <section id="historyView" hidden>
+      <header class="bar">
+        <button id="historyBack" class="icon-btn" title="Back">←</button>
+        <h1 data-i18n="historyTitle">Past meetings</h1>
+        <button id="clearHistory" class="icon-btn" title="Clear" data-i18n-title="clearHistory">🗑</button>
+      </header>
+      <ul id="historyList" class="list"></ul>
+      <p id="historyEmpty" class="muted center" data-i18n="historyEmpty">No meetings recorded yet.</p>
+    </section>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "wasted-extension",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Wasted — Chrome (MV3) meeting-cost extension",
+  "scripts": {
+    "test": "node --test"
+  }
+}
