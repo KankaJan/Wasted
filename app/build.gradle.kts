@@ -72,6 +72,12 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
+    // Encryption at rest: SQLCipher for the Room database + EncryptedSharedPreferences
+    // (Android Keystore-backed) for settings and the DB passphrase.
+    implementation(libs.sqlcipher.android)
+    implementation(libs.androidx.sqlite)
+    implementation(libs.androidx.security.crypto)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

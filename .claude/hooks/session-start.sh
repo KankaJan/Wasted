@@ -21,6 +21,9 @@ PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/android-sdk}"
 CMDLINE_TOOLS_VERSION="11076708"   # cmdline-tools 12.0
 CMDLINE_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-linux-${CMDLINE_TOOLS_VERSION}_latest.zip"
+# Pinned SHA-256 of the cmdline-tools zip above; verified before extraction so a
+# tampered/MITM'd download is never unzipped or executed. Update alongside the URL.
+CMDLINE_TOOLS_SHA256="2d2d50857e4eb553af5a6dc3ad507a17adf43d115264b1afc116f95c92e5e258"
 
 # Pin these to the project's build.gradle.kts (compileSdk / targetSdk = 35).
 PLATFORM="platforms;android-35"
@@ -47,6 +50,12 @@ if [ ! -x "${SDKMANAGER}" ]; then
   TMP_ZIP="$(mktemp --suffix=.zip)"
   curl -fSL "${CMDLINE_TOOLS_URL}" -o "${TMP_ZIP}" \
     || soft_fail "could not download command-line tools from dl.google.com"
+  # Verify integrity before trusting/executing the contents.
+  ACTUAL_SHA256="$(sha256sum "${TMP_ZIP}" | awk '{print $1}')"
+  if [ "${ACTUAL_SHA256}" != "${CMDLINE_TOOLS_SHA256}" ]; then
+    rm -f "${TMP_ZIP}"
+    soft_fail "command-line tools checksum mismatch (expected ${CMDLINE_TOOLS_SHA256}, got ${ACTUAL_SHA256})"
+  fi
   rm -rf "${SDK_ROOT}/cmdline-tools/latest" "${SDK_ROOT}/cmdline-tools/temp"
   mkdir -p "${SDK_ROOT}/cmdline-tools/temp"
   unzip -q "${TMP_ZIP}" -d "${SDK_ROOT}/cmdline-tools/temp" \

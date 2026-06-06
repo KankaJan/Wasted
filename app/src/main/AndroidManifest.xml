@@ -17,9 +17,12 @@
         </intent>
     </queries>
 
+    <!-- allowBackup=false: the roster holds names, emails and pay rates. Keeping it
+         off prevents cloud auto-backup and `adb backup` extraction of that data. The
+         dataExtractionRules below additionally exclude it from device-to-device transfer. -->
     <application
         android:name=".NextTimeEmailApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"

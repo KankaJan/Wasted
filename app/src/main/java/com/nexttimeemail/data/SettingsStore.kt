@@ -4,7 +4,7 @@ import android.content.Context
 import com.nexttimeemail.domain.CostCalculator
 
 /**
- * Small persistent app settings backed by SharedPreferences.
+ * Small persistent app settings backed by Keystore-encrypted SharedPreferences.
  *
  * [reminderThreshold] is the cost step at which the app buzzes (e.g. 100 ->
  * buzz at 100, 200, 300...). A value of 0 means the reminder is off.
@@ -12,8 +12,8 @@ import com.nexttimeemail.domain.CostCalculator
  */
 class SettingsStore(context: Context) {
 
-    private val prefs = context.applicationContext
-        .getSharedPreferences("nexttimeemail.settings", Context.MODE_PRIVATE)
+    // Keystore-backed encrypted prefs rather than plaintext SharedPreferences.
+    private val prefs = SecureStorage.prefs(context)
 
     var reminderThreshold: Double
         get() = prefs.getFloat(KEY_REMINDER_THRESHOLD, 0f).toDouble()

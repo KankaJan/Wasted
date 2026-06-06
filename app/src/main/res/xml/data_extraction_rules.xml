@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  The roster database and settings hold sensitive personal/financial data
+  (names, emails, pay rates). Exclude them from both cloud backup and
+  device-to-device transfer so they never leave the device unencrypted.
+-->
 <data-extraction-rules>
     <cloud-backup>
-        <include domain="database" path="nexttimeemail.db" />
+        <exclude domain="database" path="nexttimeemail.db" />
+        <exclude domain="sharedpref" path="nexttimeemail.secure.xml" />
     </cloud-backup>
     <device-transfer>
-        <include domain="database" path="nexttimeemail.db" />
+        <exclude domain="database" path="nexttimeemail.db" />
+        <exclude domain="sharedpref" path="nexttimeemail.secure.xml" />
     </device-transfer>
 </data-extraction-rules>
